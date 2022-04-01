@@ -97,7 +97,7 @@ on inventory click:
                         set slot 53 of event-inventory to barrier named "&c取消移動" with lore ""
                     #插入行
                     else if click action is middle mouse button:
-                        if slot 50 of event-inventory is air:
+                        if slot 51 of event-inventory is air:
                             set {_select} to index of event-slot
                             set {_slot::0} to event-slot
                             set {_count} to 1
@@ -185,6 +185,12 @@ on inventory click:
                 else if name of event-slot = "&c取消移動":
                     clear {lorechat::%player%::select}
                     lore_itemgui(player, lore of player's tool)
+            else:
+                if index of event-slot < 51:
+                    if slot 51 of event-inventory is air:
+                        add "" to lore of player's tool
+                        close player's inventory
+                        lore_itemgui(player, lore of player's tool)
 
 function lore_itemgui(p:player,lore:texts):
     OPEN chest with 6 row named "&1lore管理" to {_p}
@@ -200,6 +206,7 @@ function lore_itemgui(p:player,lore:texts):
         add "&7[ &a右鍵 &e移動 這一行 &7]"  to {_l::*}
         add "&7[ &5點擊滑鼠滾輪 &f添加空行 &7]"  to {_l::*}
         add "&7[ &cshift+右鍵 刪除這行 &7]"  to {_l::*}
+        add "&7[ &3點擊空格處可直接新增空描述 &7]"  to {_l::*} 
         add "&7&m---------------------------------" to {_l::*}
 
         set slot {_count}-1 of {_p}'s current inventory to  createitem(book,{_count},"&7第 &f%{_count}% &7行",{_l::*},1,"",false)
@@ -215,6 +222,16 @@ function itemloresave(p:player):
         clear {_slot}
     set lore of {_p}'s tool to {_lore::*}
     lore_itemgui({_p},lore of {_p}'s tool)
+function createitem(type:object,amount:integer,name:object,lore:Strings,damage:integer,ench:objects,unb:boolean) :: item:
+	set {_item} to type of {_type}
+	set item amount of {_item} to {_amount}
+	set name of {_item} to {_name}
+	set lore of {_item} to {_lore::*}
+	enchant {_item} with {_ench::*}
+	set durability of {_item} to {_damage}
+	if {_unb} is true:
+		set {_item} to unbreakable {_item}
+	return {_item} 
 
 on quit:
     delete {lorechat::%player%::*}
