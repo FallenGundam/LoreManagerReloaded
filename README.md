@@ -2,6 +2,10 @@
 可使用GUI來方便編輯物品的敘述  
 只需手持物品輸入指令/lm 即可
 
+# Version Required
+* spigot or paper: 1.13.2 ~ 1.16.5 (1.18.2 i'm not sure yet)
+* skript 2.3.7 ~ lastest
+
 # command:
 * /loremanager, /lm  
 * permission: lm.admin  
