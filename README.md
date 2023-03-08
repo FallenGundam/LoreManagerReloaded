@@ -3,7 +3,7 @@
 只需手持物品輸入指令/lm 即可
 
 # Version Required
-* spigot or paper: 1.13.2 ~ 1.16.5 (1.18.2 i'm not sure yet)
+* spigot or paper: 1.13.2 ~ 1.19.3
 * skript 2.3.7 ~ lastest
 
 # command:
