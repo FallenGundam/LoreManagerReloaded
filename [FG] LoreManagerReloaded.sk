@@ -30,6 +30,27 @@
 
 
 
+#> createitem function
+#> @param type text 物品id
+#> @param amount integer 數量
+#> @param name text 物品名稱
+#> @param lore strings 物品敘述
+#> @param damage integer 物品耐久度
+#> @param ench objs 附魔
+#> @param unb boolean 是否堅不可摧
+#> @return item
+function createitem(type:object,amount:integer,name:object,lore:Strings,damage:integer,ench:objects,unb:boolean) :: item:
+	set {_item} to type of {_type}
+	set item amount of {_item} to {_amount}
+	set name of {_item} to {_name}
+	set lore of {_item} to {_lore::*}
+	enchant {_item} with {_ench::*}
+	set durability of {_item} to {_damage}
+	if {_unb} is true:
+		set {_item} to unbreakable {_item}
+	return {_item} 
+
+
 
 
 command /loremanager:
@@ -53,12 +74,14 @@ on inventory click:
                     if click action is left mouse button:
                         close player's inventory
                         set {_lore} to line 3 of lore of event-slot
-                        set {_l} to {_lore}
-                        replace all "§" with "$" in {_l}
                         send "&f正在編輯 %name of event-slot%"
                         send "&7&m---------------------------------"
                         send "&a請輸入要替換的字串, 輸入<tooltip:cancel><sgt:cancel>&7[&c!&7] &acancel可以取消 "
-                        send formatted "<tooltip:%{_lore}%><sgt:%{_l}%> &7[&c!&7] &b點擊此處可編輯此字串"
+
+                        replace all "§" with "&" in {_lore}
+                        set {_tellraw} to "{""text"":""&7[&c!&7] &b點擊此處可編輯此字串"",""hoverEvent"":{""action"":""show_text"",""value"":{""text"":""%line 3 of lore of event-slot%""}},""clickEvent"":{""action"": ""suggest_command"",""value"": ""%{_lore}%""}}"
+                        execute console command "tellraw %player% %{_tellraw}%"
+                        # send "<tooltip:%{_lore}%><sgt:%{_lore}%> &7[&c!&7] &b點擊此處可編輯此字串"
                         send "&7&m---------------------------------"
                         play sound "BLOCK.PISTON.EXTEND" with volume 1 with pitch 1.5 to player
                         set {lorechat::%player%::line} to uncolored name of event-slot
@@ -192,18 +215,9 @@ on inventory click:
                         play sound "BLOCK.ANVIL.USE" with volume 1 with pitch 1.5 to player
                         close player's inventory
                         lore_itemgui(player, lore of player's tool)
-function createitem(type:object,amount:integer,name:object,lore:Strings,damage:integer,ench:objects,unb:boolean) :: item:
-	set {_item} to type of {_type}
-	set item amount of {_item} to {_amount}
-	set name of {_item} to {_name}
-	set lore of {_item} to {_lore::*}
-	enchant {_item} with {_ench::*}
-	set durability of {_item} to {_damage}
-	if {_unb} is true:
-		set {_item} to unbreakable {_item}
-	return {_item} 
+
 function lore_itemgui(p:player,lore:texts):
-    OPEN chest with 6 row named "&1lore管理" to {_p}
+    OPEN chest inventory with 6 row named "&1lore管理" to {_p}
     set {_count} to 0
     loop {_lore::*}:
         add 1 to {_count}
@@ -214,7 +228,7 @@ function lore_itemgui(p:player,lore:texts):
         add "" to {_l::*}
         add "&7[ &6左鍵 &e編輯 這一行 &7]"  to {_l::*}
         add "&7[ &a右鍵 &e移動 這一行 &7]"  to {_l::*}
-        add "&7[ &5點擊滑鼠滾輪 &f添加空行 &7]"  to {_l::*}
+        add "&7[ &5點擊滑鼠滾輪 &f插入空行 &7]"  to {_l::*}
         add "&7[ &cshift+右鍵 刪除這行 &7]"  to {_l::*}
         add "&7[ &3點擊空格處可直接新增空描述 &7]"  to {_l::*} 
         add "&7&m---------------------------------" to {_l::*}
@@ -232,7 +246,9 @@ function itemloresave(p:player):
         clear {_slot}
     set lore of {_p}'s tool to {_lore::*}
     lore_itemgui({_p},lore of {_p}'s tool)
- 
+
+on unload:
+    delete {lorechat::*}
 
 on quit:
     delete {lorechat::%player%::*}
@@ -246,7 +262,7 @@ on chat:
             send "&C已取消輸入"
         else:
             set {_msg} to message
-            replace all "$" and "&" with "§" in {_msg}
+            replace all "&" with "§" in {_msg}
             set line {lorechat::%player%::line} of lore of player's tool to {_msg}
             send "&e成功將 第 %{lorechat::%player%::line}% 行 的敘述替換成 %{_msg}%"
             play sound "BLOCK.ANVIL.USE" with volume 1 with pitch 1.5 to player
